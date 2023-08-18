@@ -15,10 +15,10 @@ export class TaskService {
 
   async getTasks(token: string) {
     const idUser = await this.authService.getUserIdFromToken(token);
+    const user = await this.userService.findOneOurFail({
+      where: { id: idUser },
+    });
     try {
-      const user = await this.userService.findOneOurFail({
-        where: { id: idUser },
-      });
       return {
         message: 'Tasks resgatas com sucesso!',
         tasks: user.tasks,
@@ -48,7 +48,6 @@ export class TaskService {
     token: string,
   ) {
     const { id: taskId, ...fieldsEdited } = queryParams;
-    console.log(fieldsEdited);
     const idUser = await this.authService.getUserIdFromToken(token);
     const idTaskDeleted = await this.userService.updateTaskToUser(
       taskId,
@@ -56,7 +55,7 @@ export class TaskService {
       {
         ...(fieldsEdited?.name !== undefined && { name: fieldsEdited.name }),
         ...(fieldsEdited?.wasFinished !== undefined && {
-          wasFinished: Boolean(fieldsEdited.wasFinished),
+          wasFinished: JSON.parse(fieldsEdited.wasFinished.toString()),
         }),
       },
     );
